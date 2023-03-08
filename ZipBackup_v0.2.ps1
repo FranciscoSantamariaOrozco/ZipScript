@@ -1,30 +1,32 @@
-$sourceFolder1 = "C:\Users\vsilva\Documents\U Shadow\FACT ARMAZENAG CLIENTS"
+﻿$sourceFolder1 = "C:\Users\vsilva\Documents\U Shadow\FACT ARMAZENAG CLIENTS"
 $sourceFolder2 = "Z:\Financeiro"
-$destinationFolder = "C:\Users\vsilva\OneDrive - UNIVERSALSHADOW, UNIPESSOAL LDA\"
-$dateStamp = (Get-Date).ToString("dd.MM.yyyy")
-$baseName1 = "FACT ARMAZENAG CLIENTS_"
-$baseName2 = "Financeiro_"
+$destinationFolder = "C:\Users\vsilva\OneDrive - UNIVERSALSHADOW, UNIPESSOAL LDA"
 
-for ($i = 1; $i -le 2; $i++) {
-    $destinationZip = $destinationFolder + $baseName1 + $dateStamp + ".zip"
-    
-    if (Test-Path $destinationZip) {
-        $counter = 1
-        while (Test-Path $destinationZip -PathType Leaf) {
-            if ($counter -ge 3) {
-                Write-Host "Se han alcanzado el máximo copias del archivo zip en el destino."
-                break
-            }
-            $destinationZip = $destinationFolder + $baseName1 + $dateStamp + "_" + $counter + ".zip"
-            $counter++
-        }
-    }
-    
-    if (Test-Path ${"sourceFolder$i"}) {
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [IO.Compression.ZipFile]::CreateFromDirectory(${"sourceFolder$i"}, $destinationZip)
+if(-not (Test-Path $destinationFolder)) {
+    $createFolder = Read-Host "A pasta $destinationFolder não existe. Quer criá-la? (S/N)"
+    if($createFolder -eq "S") {
+        New-Item -ItemType Directory -Path $destinationFolder | Out-Null
     } else {
-        Write-Host "La ruta de la carpeta de origen $i no existe."
-        continue
+        Write-Host "A pasta não será criada. O script será encerrado."
+        return
     }
+}
+
+$destinationZip1 = "$destinationFolder\FACT ARMAZENAG CLIENTS_" + (Get-Date).ToString("dd.MM.yyyy") + ".zip"
+$destinationZip2 = "$destinationFolder\Financeiro_" + (Get-Date).ToString("dd.MM.yyyy") + ".zip"
+
+if (Test-Path $sourceFolder1) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::CreateFromDirectory($sourceFolder1, $destinationZip1)
+    Write-Host "O ficheiro ZIP $destinationZip1 foi criado correctamente"
+} else {
+    Write-Host "A pasta $sourceFolder1 não foi encontrada. O ficheiro ZIP $destinationZip1 não foi criado."
+}
+
+if (Test-Path $sourceFolder2) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::CreateFromDirectory($sourceFolder2, $destinationZip2)
+    Write-Host "O ficheiro ZIP $destinationZip2 foi criado correctamente"
+} else {
+    Write-Host "A pasta $sourceFolder2 não foi encontrada. O ficheiro ZIP $destinationZip2 não foi criado."
 }
